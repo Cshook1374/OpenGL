@@ -33,8 +33,15 @@ status_t shader_create(shader_t * shader, const char * vertexFile, const char* f
     glAttachShader(shader->shaderProgramID, vertexShaderID);
     glAttachShader(shader->shaderProgramID, fragmentShaderID);
 
+    glBindAttribLocation(shader->shaderProgramID, 0, "position");
+    glBindAttribLocation(shader->shaderProgramID, 1, "textures");
+
     glLinkProgram(shader->shaderProgramID);
 
+    shader->location_modelMatrix = glGetUniformLocation(shader->shaderProgramID, "modelMatrix");
+    shader->location_viewMatrix = glGetUniformLocation(shader->shaderProgramID, "viewMatrix");
+    shader->location_projMatrix = glGetUniformLocation(shader->shaderProgramID, "projMatrix");
+    
     int32_t success;
     char infoLog[1024];
 
@@ -48,13 +55,17 @@ status_t shader_create(shader_t * shader, const char * vertexFile, const char* f
     return SHADER_SUCCESS;
 }
 
-status_t shader_start(shader_t * shader) {
+status_t shader_start(shader_t * shader, transform_t * transform, camera_t * camera) {
     if (shader == NULL) {
         fprintf(stderr, "shader_t * 'shader' cannot be NULL when passing to shader_start(...)! ");
         return SHADER_FAILURE;
     }
 
     glUseProgram(shader->shaderProgramID);
+
+    glUniformMatrix4fv(shader->location_modelMatrix, 1, GL_FALSE, &transform->modelMatrix[0][0]);
+    glUniformMatrix4fv(shader->location_viewMatrix, 1, GL_FALSE, &camera->viewMatrix[0][0]);
+    glUniformMatrix4fv(shader->location_projMatrix, 1, GL_FALSE, &camera->projMatrix[0][0]);
 
     return SHADER_SUCCESS;
 }
@@ -129,7 +140,11 @@ status_t priv_shader_compile(uint32_t * shaderID, const char * shaderFile, GLenu
 
     glShaderSource(*shaderID, 1, &shaderSource, NULL);
 
+    //printf("%s\n", shaderSource);
+
     free(buffer);
+    buffer = NULL;
+    shaderSource = NULL;
 
     glCompileShader(*shaderID);
 

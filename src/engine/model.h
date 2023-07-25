@@ -13,14 +13,14 @@ extern "C" {
 #define MODEL_SUCCESS 0
 #define MODEL_FAILURE -1
 
-typedef int status_t;
+typedef int32_t status_t;
 
 typedef struct {
     uint32_t vaoID;
     uint32_t vertexCount;
 } model_t;
 
-status_t model_create(model_t * model, float * positions, size_t positionsLength, uint32_t * indices, size_t);
+status_t model_create(model_t * model, float * positions, size_t positionsLength, float * textures, size_t texturesLength, uint32_t * indices, size_t);
 
 status_t model_render(model_t * model);
 

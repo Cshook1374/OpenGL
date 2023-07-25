@@ -10,11 +10,21 @@ extern "C" {
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+
+#include <limits.h>
 
 #define WINDOW_SUCCESS 0
 #define WINDOW_FAILURE -1
 
-typedef int status_t;
+extern double lastX;
+extern double lastY;
+extern bool firstMouse;
+
+extern float yaw;
+extern float pitch;
+
+typedef int32_t status_t;
 
 status_t window_create(GLFWwindow ** window, uint32_t width, uint32_t height, const char * title);
 
