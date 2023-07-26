@@ -4,11 +4,6 @@
 #include "engine/window.h"
 #include "engine/camera.h"
 #include "engine/input.h"
-#include <GLFW/glfw3.h>
-
-void mouse_callback(GLFWwindow * window, double xpos, double ypos);
-
-camera_t camera;
 
 int main(int argc, char ** argv) {
     if (argc != 3) {
@@ -76,7 +71,8 @@ int main(int argc, char ** argv) {
         return -1;
     }
 
-    status_t cameraCreation = camera_create(&camera, 60);
+    camera_t camera;
+    status_t cameraCreation = camera_create(&camera, 60, 0.5, width, height);
     if (cameraCreation == CAMERA_FAILURE) {
         fprintf(stderr, ": [%s: %d]\n", __FILE__, __LINE__ - 2);
         return -1;
@@ -107,13 +103,27 @@ int main(int argc, char ** argv) {
             return -1;
         }
 
+        inputstatus = input_mouse(window, &camera, deltaTime);
+        if (inputstatus == INPUT_FAILURE) {
+            fprintf(stderr, ": [%s: %d]\n", __FILE__, __LINE__ - 2);
+            return -1;
+        }
+
+        printf("Mouse X: %lf, Mouse Y: %lf\n", camera.currentX, camera.currentY);
+
         shaderStatus = shader_start(&shader, &transform, &camera);
         if (shaderStatus == SHADER_FAILURE) {
             fprintf(stderr, ": [%s: %d]\n", __FILE__, __LINE__ - 2);
             return -1;
         }
 
-        cameraStatus = camera_update(&camera, width, height);
+        cameraStatus = camera_update(&camera);
+        if (cameraStatus == CAMERA_FAILURE) {
+            fprintf(stderr, ": [%s: %d]\n", __FILE__, __LINE__ - 2);
+            return -1;
+        }
+
+        cameraStatus = camera_print(&camera);
         if (cameraStatus == CAMERA_FAILURE) {
             fprintf(stderr, ": [%s: %d]\n", __FILE__, __LINE__ - 2);
             return -1;
@@ -153,50 +163,4 @@ int main(int argc, char ** argv) {
     glfwTerminate();
 
     return 0;
-}
-
-void mouse_callback(GLFWwindow * window, double xpos, double ypos) {
-    if (window == NULL) {
-        fprintf(stderr, "GLFWwindow * 'window' cannot be NULL when being passed to mouse_callback(...)! ");
-        exit(-1);
-    }
-
-    bool firstMouse = true;
-    double lastX;
-    double lastY;
-    float yaw;
-    float pitch;
-
-    if (firstMouse == true) {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
-
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos;
-    lastX = xpos;
-    lastY = ypos;
-
-    float sensitivity = 1.0;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    yaw += xoffset;
-    pitch += yoffset;
-
-    if (pitch > 90) {
-        pitch = 90;
-    }
-    if (pitch < -90) {
-        pitch = 90;
-    }
-
-    vec3 front;
-    front[0] = cos(glm_rad(yaw)) * cos(glm_rad(pitch));
-    front[1] = sin(glm_rad(pitch));
-    front[2] = sin(glm_rad(yaw)) * cos(glm_rad(pitch));
-    glm_normalize(front);
-
-    glm_vec3_copy(camera.front, front);
 }

@@ -1,4 +1,7 @@
 #include "input.h"
+#include "camera.h"
+#include <GLFW/glfw3.h>
+#include <cglm/util.h>
 
 status_t input_keyboard(GLFWwindow * window, camera_t * camera, float deltaTime) {
     status_t cameraMoveStatus;
@@ -44,20 +47,29 @@ status_t input_keyboard(GLFWwindow * window, camera_t * camera, float deltaTime)
         }
     }
 
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-        cameraPanStatus = camera_pan(camera, (vec3){-camera->panSpeed}, deltaTime);
-        if (cameraPanStatus == CAMERA_FAILURE) {
-            fprintf(stderr, ": [%s: %d]\n", __FILE__, __LINE__ - 2);
-            return -1;
-        }
+    return INPUT_SUCCESS;
+}
+
+status_t input_mouse(GLFWwindow * window, camera_t * camera, float deltaTime) {
+    if (window == NULL) {
+        fprintf(stderr, "GLFWwindow * 'window' cannot be NULL when being passed to input_mouse(...)! ");
+        return INPUT_FAILURE;
     }
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        cameraPanStatus = camera_pan(camera, (vec3){camera->panSpeed}, deltaTime);
-        if (cameraPanStatus == CAMERA_FAILURE) {
-            fprintf(stderr, ": [%s: %d]\n", __FILE__, __LINE__ - 2);
-            return -1;
-        }
-    }
+
+    glfwGetCursorPos(window, &camera->currentX, &camera->currentY);
+
+    float xoffset = camera->currentX - camera->lastX;
+    float yoffset = camera->lastY - camera->currentY;
+    camera->lastX = camera->currentX;
+    camera->lastY = camera->currentY;
+
+    xoffset *= camera->lookSpeed;
+    yoffset *= camera->lookSpeed;
+
+    float newYaw = camera->yaw + xoffset;
+    float newPitch = camera->pitch + yoffset;
+
+    camera_look(camera, newYaw, newPitch, deltaTime);
 
     return INPUT_SUCCESS;
 }

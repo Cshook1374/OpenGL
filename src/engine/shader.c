@@ -130,6 +130,12 @@ status_t priv_shader_compile(uint32_t * shaderID, const char * shaderFile, GLenu
         return SHADER_FAILURE;
     }
 
+    status_t flush = fflush(file);
+    if (flush < 0) {
+        fprintf(stderr, "Failed to flush buffer %s! %s\n", shaderFile, strerror(errno));
+        return SHADER_FAILURE;
+    }
+
     status_t errClose = fclose(file);
     if (errClose < 0) {
         fprintf(stderr, "Failed to close file %s! %s", shaderFile, strerror(errno));

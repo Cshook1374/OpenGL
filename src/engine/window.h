@@ -17,13 +17,6 @@ extern "C" {
 #define WINDOW_SUCCESS 0
 #define WINDOW_FAILURE -1
 
-extern double lastX;
-extern double lastY;
-extern bool firstMouse;
-
-extern float yaw;
-extern float pitch;
-
 typedef int32_t status_t;
 
 status_t window_create(GLFWwindow ** window, uint32_t width, uint32_t height, const char * title);

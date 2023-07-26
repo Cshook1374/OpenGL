@@ -1,4 +1,5 @@
 #include "window.h"
+#include <GLFW/glfw3.h>
 
 status_t window_create(GLFWwindow ** window, uint32_t width, uint32_t height, const char * title) {
     if (window == NULL) {
@@ -16,7 +17,7 @@ status_t window_create(GLFWwindow ** window, uint32_t width, uint32_t height, co
         return WINDOW_FAILURE;
     }
 
-    *window = glfwCreateWindow(width, height, title, NULL, NULL);
+    *window = glfwCreateWindow(width, height, title, glfwGetPrimaryMonitor(), NULL);
     if (*window == NULL) {
         fprintf(stderr, "Failed to create window! ");
         glfwTerminate();
@@ -24,6 +25,8 @@ status_t window_create(GLFWwindow ** window, uint32_t width, uint32_t height, co
     }
 
     glfwMakeContextCurrent(*window);
+
+    glfwSetInputMode(*window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     if (glewInit() != GLEW_OK) {
         fprintf(stderr, "Failed to init GLEW! ");

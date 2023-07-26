@@ -19,6 +19,8 @@ typedef int32_t status_t;
 
 status_t input_keyboard(GLFWwindow * window, camera_t * camera, float deltaTime);
 
+status_t input_mouse(GLFWwindow * window, camera_t * camera, float deltaTime);
+
 #ifdef __cplusplus
 }
 #endif //__cplusplus
